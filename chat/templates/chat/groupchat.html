@@ -8,10 +8,9 @@
 
 <script>
     document.querySelector('#chat-log').value = ""
-    {% for message_event in message_and_event_list%}
-
-    document.querySelector('#chat-log').value += ( {{message_event}}  + '\n');
-{%endfor%}
+    {% for message_event in message_and_event_list %}
+        document.querySelector('#chat-log').value += ('{{ message_event|safe }}' + '\n');
+    {% endfor %}
 </script>
 
 
