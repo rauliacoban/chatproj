@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def HomeView(request):
+    print("Arrived at Homeview")
     """The homepage where all groups are listed"""
     groups = Group.objects.all()
     user = request.user
@@ -16,6 +17,7 @@ def HomeView(request):
 
 @login_required
 def GroupChatView(request, uuid):
+    print("Arrived at GroupChatView")
     """The view for a group where all messages and events are sent to the frontend"""
 
     group = get_object_or_404(Group, uuid=uuid)
