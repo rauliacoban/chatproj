@@ -24,3 +24,18 @@
     </ul>
 {%endblock content%}
     
+{% block script %}
+<script>
+    const base_url = `ws://${window.location.host}/ws/some_path/`;
+    const websocket = new WebSocket(base_url);
+
+    websocket.onopen = function(event) {
+        console.log('client says connection opened');
+        websocket.send("Client sends Welcome");
+    };
+
+    websocket.onmessage = function(event) {
+        console.log("client says server message received: ", event);
+    };
+</script>
+{% endblock script %}
