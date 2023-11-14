@@ -1,50 +1,115 @@
-<!-- chat/templates/chat/home.html -->
-{%extends 'chat/base.html'%}
-{% block title%} Home {%endblock title%}
-{% block content%}
+{% extends 'chat/base.html' %}
+{% block title %} Home {% endblock title %}
+{% block content %}
     <h1 style="margin-top: 3px;">DiscusIt Home Page</h1>
     <ul>
-        {%for group in groups%}
-        <div id="{{group.uuid}}">
-            <li><a>{{group.name}}</a></li>
-            {% if request.user in group.members.all%}
-                <button id="leave-{{group.uuid}}" class="group_option" value="leave_group {{group.uuid}}">\
-                Leave</button>
-            {%else%}
-                <button id="join-{{group.uuid}}" class="group_option" value="join_group {{group.uuid}}">\
-                Join</button>
-            {%endif%}
-            {% if request.user in group.members.all%}
-            <button id="open-{{group.uuid}}" class="group_option" value="open_group {{group.uuid}}">\
-            Open</button>
-            {%endif%}
+        {% for group in groups %}
+        <div id="{{ group.uuid }}">
+            <li><a>{{ group.name }}</a></li>
+            {% if request.user in group.members.all %}
+                <button id="leave-{{ group.uuid }}" class="group_option" value="leave_group {{ group.uuid }}">
+                    Leave
+                </button>
+            {% else %}
+                <button id="join-{{ group.uuid }}" class="group_option" value="join_group {{ group.uuid }}">
+                    Join
+                </button>
+            {% endif %}
+            {% if request.user in group.members.all %}
+                <button id="open-{{ group.uuid }}" class="group_option" value="open_group {{ group.uuid }}">
+                    Open
+                </button>
+            {% endif %}
         </div>
-        {%endfor%}
-
+        {% endfor %}
     </ul>
-{%endblock content%}
-    
+{% endblock content %}
+
 {% block script %}
 <script>
     const base_url = `ws://${window.location.host}/ws/some_path/`;
     const websocket = new WebSocket(base_url);
-    
+
     websocket.onopen = function(event) {
         console.log('client says connection opened');
-        websocket.send("Client sends Welcome");
+        const data = {
+            "type": "just_text_data",
+            "data": "Client sends Welcome",
+        };
+        websocket.send(JSON.stringify(data));
     };
-    
+
     websocket.onmessage = function(event) {
-        console.log("client says server message received: ", event.data);
+        /* Called when the WebSocket server sends a message to the client WebSocket */
+        const message = JSON.parse(event.data);
+        const type = message.type;
+        const data = message.data;
+        switch (type) {
+            case "leave_group":
+                leave_group_handler(data);
+                break;
+            case "join_group":
+                join_group_handler(data);
+                break;
+        }
     };
-    
-    websocket.onerror = function(event) {
-        console.error('WebSocket error:', event);
-    };
-    
-    websocket.onclose = function(event) {
-        console.log('client says connection closed:', event);
-    };
-    
+
+    function add_event_to_all_buttons() {
+        /* Add an event listener that sends the event message to all buttons */
+        const keys = document.querySelectorAll('.group_option');
+        keys.forEach(item => {
+            item.addEventListener('click', send_event_message);
+        });
+    }
+
+    function send_event_message(event) {
+        /* Send the uuid and the value of the button that was clicked */
+        const { target } = event;
+        const group = target.value.split(" ");
+        const group_uuid = group[1];
+        const action = group[0]; // Will either be leave_group or Join_group or open_group
+        if (action === "open_group") {
+            window.location.replace(`http://${window.location.host}/groups/${group_uuid}`);
+        } else {
+            const data = {
+                "type": action,
+                "data": group_uuid,
+            };
+            websocket.send(JSON.stringify(data));
+        }
+    }
+
+    add_event_to_all_buttons();
+
+    function leave_group_handler(uuid) {
+        /* Remove the Leave Button and Open button and create a new Join Button */
+        const leave_button = document.getElementById(`leave-${uuid}`);
+        const open_button = document.getElementById(`open-${uuid}`);
+        leave_button.remove();
+        open_button.remove();
+        const button = `<button id="join-${uuid}" class="group_option" value="join_group ${uuid}">Join</button>`;
+        const dev_body = document.getElementById(uuid);
+        dev_body.innerHTML += button;
+        add_event_to_all_buttons();
+    }
+
+    function join_group_handler(uuid) {
+        /* Remove the Join Button and add the Leave and Open button */
+        const leave_button = document.getElementById(`join-${uuid}`);
+        leave_button.remove();
+        const button = `<button id="leave-${uuid}" class="group_option" value="leave_group ${uuid}">
+            Leave
+        </button>`;
+        const open_button = `<button id="open-${uuid}" class="group_option" value="open_group ${uuid}">
+            Open
+        </button>`;
+
+        const dev_body = document.getElementById(uuid);
+        dev_body.innerHTML += button;
+        dev_body.innerHTML += open_button;
+        add_event_to_all_buttons();
+    }
+
+    //get_all_buttons()
 </script>
 {% endblock script %}
