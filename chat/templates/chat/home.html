@@ -28,14 +28,23 @@
 <script>
     const base_url = `ws://${window.location.host}/ws/some_path/`;
     const websocket = new WebSocket(base_url);
-
+    
     websocket.onopen = function(event) {
         console.log('client says connection opened');
         websocket.send("Client sends Welcome");
     };
-
+    
     websocket.onmessage = function(event) {
-        console.log("client says server message received: ", event);
+        console.log("client says server message received: ", event.data);
     };
+    
+    websocket.onerror = function(event) {
+        console.error('WebSocket error:', event);
+    };
+    
+    websocket.onclose = function(event) {
+        console.log('client says connection closed:', event);
+    };
+    
 </script>
 {% endblock script %}
