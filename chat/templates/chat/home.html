@@ -63,11 +63,18 @@
     }
 
     function send_event_message(event) {
-        /* Send the uuid and the value of the button that was clicked */
+        console.log('send_event_message called');
         const { target } = event;
+        console.log('target:', target);
+
+        /* Send the uuid and the value of the button that was clicked */
         const group = target.value.split(" ");
         const group_uuid = group[1];
+        console.log('group_uuid:', group_uuid);
+        
         const action = group[0]; // Will either be leave_group or Join_group or open_group
+        console.log('action:', action);
+        
         if (action === "open_group") {
             window.location.replace(`http://${window.location.host}/groups/${group_uuid}`);
         } else {
@@ -75,6 +82,7 @@
                 "type": action,
                 "data": group_uuid,
             };
+            console.log('data:', data);
             websocket.send(JSON.stringify(data));
         }
     }

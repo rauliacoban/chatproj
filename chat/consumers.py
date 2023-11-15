@@ -6,20 +6,21 @@ import asyncio
 import json
 import logging
 from chat.models import Group, User, Message, Event
+from asgiref.sync import sync_to_async
 
 logger = logging.getLogger(__name__)
-
 class JoinAndLeave(AsyncWebsocketConsumer):
     async def connect(self):
-        logger.info("WebSocket connection established")
+        print("JOINANDLEAVE connect")
         self.user = self.scope["user"]
         await self.accept()
 
     async def disconnect(self, close_code):
-        logger.info("WebSocket connection closed")
+        print("JOINANDLEAVE disconnect")
+        print("WebSocket connection closed")
 
     async def receive(self, text_data):
-        print("server says client message received: ", text_data)
+        print("JOINANDLEAVE receive: ", text_data)
         #'''
         text_data = json.loads(text_data)
         type = text_data.get("type", None)
@@ -27,29 +28,36 @@ class JoinAndLeave(AsyncWebsocketConsumer):
             data = text_data.get("data", None)
         
         if type == "leave_group":
-            self.leave_group(data)
+            await self.leave_group(data)
         elif type == "join_group":
-            self.join_group(data)
+            print("CALLING join_group:", data)
+            await self.join_group(data)
         #'''
 
-    async def leave_group(self, group_uuid):
+    @database_sync_to_async
+    def leave_group(self, group_uuid):
+        print("JOINANDLEAVE leave_group", flush=True)
         group = Group.objects.get(uuid=group_uuid)
         group.remove_user_from_group(self.user)
         data = {
             "type":"leave_group",
             "data":group_uuid
         }
-        await self.send(json.dumps(data))
+        self.send(json.dumps(data))
 
-    async def join_group(self, group_uuid):
+    @database_sync_to_async
+    def join_group(self, group_uuid):
+        print("JOINANDLEAVE join_group", flush=True)
         group = Group.objects.get(uuid=group_uuid)
+        print(group)
         group.add_user_to_group(self.user)
         data = {
-            "type":"join_group",
-            "data":group_uuid
+            "type": "join_group",
+            "data": group_uuid
         }
-        await self.send(json.dumps(data))
-
+        print("JOINANDLEAVE before send", flush=True)
+        self.send(json.dumps(data))
+        print("JOINANDLEAVE after send", flush=True)
 
 class GroupConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -58,10 +66,9 @@ class GroupConsumer(AsyncWebsocketConsumer):
         self.group = await database_sync_to_async(Group.objects.get)(uuid = self.group_uuid)
         await self.channel_layer.group_add(
                 self.group_uuid,self.channel_name)
-
         self.user = self.scope["user"]
         await self.accept()
-    
+
     async def receive(self, text_data=None, bytes_data=None):
         print("ARRIVED AT GroupConsumer receive")
         text_data = json.loads(text_data)
@@ -82,6 +89,7 @@ class GroupConsumer(AsyncWebsocketConsumer):
         })
 
     async def text_message(self, event):
+        print("ARRIVED AT GroupConsumer text_message")
         message = event["message"]
         author = event.get("author")
         
@@ -93,3 +101,17 @@ class GroupConsumer(AsyncWebsocketConsumer):
         await self.send(json.dumps(
                 returned_data
                 ))
+
+    async def event_message(self, event):
+        print("ARRIVED AT GroupConsumer event_message")
+        message = event.get("message")
+        user = event.get("user", None)
+        
+        await self.send(
+            json.dumps({
+                    "type":"event_message",
+                    "message":message,
+                    "status":event.get("status",None),
+                    "user":user
+            })
+        )
