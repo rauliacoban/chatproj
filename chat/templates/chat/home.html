@@ -23,6 +23,13 @@
         </div>
         {% endfor %}
     </ul>
+
+    <h2>Create a New Group</h2>
+    <form id="create-group-form">
+        <label for="group-name">Group Name:</label>
+        <input type="text" id="group-name" name="group-name" required>
+        <input type="submit" value="Create Group">
+    </form>
 {% endblock content %}
 
 {% block script %}
@@ -119,6 +126,27 @@
         add_event_to_all_buttons();
     }
 
+    document.getElementById('create-group-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const groupName = document.getElementById('group-name').value;
+
+        // Validate group name (add more validation as needed)
+        if (groupName.trim() === "") {
+            alert("Please enter a valid group name.");
+            return;
+        }
+
+        // Send WebSocket message to create a new group
+        const data = {
+            "type": "create_group",
+            "data": groupName,
+        };
+        websocket.send(JSON.stringify(data));
+
+        // Optionally, you can clear the input field after submitting
+        document.getElementById('group-name').value = '';
+        window.location.replace(`http://${window.location.host}`);
+    });
     //get_all_buttons()
 </script>
 {% endblock script %}
