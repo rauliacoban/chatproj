@@ -7,6 +7,7 @@ import json
 import logging
 from chat.models import Group, User, Message, Event
 from asgiref.sync import sync_to_async
+import chat.signal
 
 logger = logging.getLogger(__name__)
 class JoinAndLeave(AsyncWebsocketConsumer):

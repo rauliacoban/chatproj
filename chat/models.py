@@ -37,6 +37,10 @@ class Group(models.Model):
         self.members.remove(user)
         self.event_set.create(type="Left", user=user)
         self.save()
+    
+    def save(self, *args, **kwargs):
+        print("    Group saved")
+        super().save(*args, kwargs)
 
 class Message(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -49,6 +53,9 @@ class Message(models.Model):
         time = self.timestamp.time()
         return f"{self.author}:- {self.content} @{date} {time.hour}:{time.minute}"
     
+    def save(self, *args, **kwargs):
+        print("    Message saved")
+        super().save(*args, kwargs)
     
 class Event(models.Model):
     '''
@@ -66,6 +73,7 @@ class Event(models.Model):
     group = models.ForeignKey(Group ,on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
+        print("    Event saved")
         self.description = f"{self.user} {self.type} the {self.group.name} group"
         super().save(*args, kwargs)
 

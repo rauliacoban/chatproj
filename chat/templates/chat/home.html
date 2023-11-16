@@ -84,6 +84,7 @@
             };
             console.log('data:', data);
             websocket.send(JSON.stringify(data));
+            window.location.replace(`http://${window.location.host}`); // to refresh showed buttons
         }
     }
 
