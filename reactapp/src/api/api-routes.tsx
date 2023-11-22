@@ -39,9 +39,9 @@ export const doRegister = (user:string,pwd:string,email:string,navigate:any,regi
         window.location.reload();
       }
       if (response.data.success){
-        console.log("response.data.success!")
+        console.log("Register success")
       } else {
-        console.log("ba astia")
+        console.log("Register failed")
       }
     }).catch((e:any) => {
       console.log(e);
@@ -92,19 +92,21 @@ export const getRoomCode = (csrf:any) =>{
       console.log(response.data.code);
       roomCode = response.data.code;
       Cookies.set("roomCode", roomCode);
-      Cookies.set("roomNumber",response.data.id);
-      window.location.replace("/chat/ws/chat/" + Cookies.get("roomNumber"))
+      Cookies.set("groupId",response.data.id);
+      window.location.replace("/chat/ws/chat/" + Cookies.get("groupId"))
     }).catch((e:any) => {
       console.log(e);
     });
 };
 
-export const doesRoomExist = (csrf:any,room:any) =>{
-  room=room.trim();
+export const doesRoomExist = (csrf:any,groupName:any) =>{
+  groupName=groupName.trim();
   const params = ({
-    "room" : room
-   })
-   console.log(room + " ROOOOMMMM");
+    "groupName" : groupName
+  })
+
+  console.log(groupName + " ROOOOMMMM");
+
   axios.get(ApiConstants.checkRoomUrl ,{
     params,
     headers: {
@@ -113,10 +115,12 @@ export const doesRoomExist = (csrf:any,room:any) =>{
     },
   }).then((response:any) =>{
     const roomId=response.data.number;
-    Cookies.set("roomCode",room);
-    Cookies.set("roomNumber",roomId);
-    window.location.replace("/chat/ws/chat/" + Cookies.get("roomNumber"));
-
+    Cookies.set("roomCode",groupName);
+    Cookies.set("groupId",roomId);
+    window.location.replace("/chat/ws/chat/" + Cookies.get("groupId"));
+    
+    console.log("Group name: " + groupName);
+    console.log("Group id:" + roomId);
   }).catch((e:any) => {
     throw new Error(e.response);
   });

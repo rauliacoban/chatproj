@@ -6,6 +6,7 @@ import Image from 'react-bootstrap';
 import SendMessage from './SendMessage';
 import Message from './Message';
 import Chat from './Chat';
+import getChatSocket from '../api/WebSockets';
 
 interface TextProps{
   content: string
@@ -39,14 +40,20 @@ function Text({ content }: TextProps) {
 }
 
 const ChatView  = () => {
+  console.log("        HELLO CHATVIEW");
+  const ws: WebSocket = getChatSocket(
+    Cookies.get("groupId"),
+    Cookies.get("user"),
+    Cookies.get("roomCode")
+  )
+
   return (
     <>
     <div className='bg-primary bg-opacity-50 w-100 rounded shadow-lg' style={{overflow: "none"}}>
         <RoomNumber />
-        <Chat/> 
+        <Chat ws = {ws}/> 
     </div>
     </>
- 
   )
 }
 

@@ -10,43 +10,67 @@ import {useReducer} from 'react';
 let listMessages: any[] = []
 let messages: any[] = []
 
+interface ChatProps {
+    ws: WebSocket;
+}
 
-const Chat = () => {
+const Chat: React.FC<ChatProps> = ({ ws }) =>{
+    console.log("                   ENTERING CHAT")
     const [message, setMessage] = useState("");
+    let my_message;
+    const [deleteme, setDeleteme] = useState("");
     const [user, setUser] = useState("");
     const [isPaused, setPause] = useState(false);
-    const [ws, setWS] = useState(getChatSocket(
-        Cookies.get("roomNumber"),
-        Cookies.get("user"),
-        Cookies.get("roomCode")
-    ))
+
     const [webSocketReady, setWebSocketReady] = useState(false);
     const [newMessage, setNewMessage] = useState(false);
     const ref:any = useRef()
 
 
+    const effectRan = useRef(false);
+
+
     console.log('RE-RENDER: ' + webSocketReady);
+    console.log('user: ' + user);
+    console.log('isPaused: ' + isPaused);
+    console.log('webSocketReady: ' + webSocketReady);
+    console.log('newMessage: ' + newMessage);
+    console.log('groupId: ' + Cookies.get("groupId"));
+    console.log('roomCode: ' + Cookies.get("roomCode"));
 
     useEffect(() => {
-      console.log("executing")
-      ref.current.scrollIntoView({behaviour:"smooth"});
+        console.log("executing")
+        ref.current.scrollIntoView({behaviour:"smooth"});
     }, [webSocketReady])
 
     useEffect(() => {
         ws.onopen = (e) => {
-           setWebSocketReady(false);
-           console.log('connected to websocket')
+            setWebSocketReady(false);
+            console.log('connected to websocket')
         }
 
-        ws.onmessage = (message: any) => {
-            let mesajJSON = JSON.parse(message.data);
-            messages.push(JSON.stringify(mesajJSON.message).slice(1, -1));
-            setUser(JSON.stringify(mesajJSON.user).slice(1, -1));
+        ws.onmessage = (text_data: any) => {
+            console.log("   Message:" + text_data.data)
+            let dataJSON = JSON.parse(text_data.data);
+            let type = dataJSON['type']
+            let message = dataJSON['message']
+            let author = dataJSON['author']
+            messages.push(message);
+            setUser(author);
             setWebSocketReady(true);
             setNewMessage(true);
+            /*
+            let stringified = JSON.stringify(mesajJSON.message);
+            console.log("   message:" + stringified)
+            messages.push(stringified.slice(1, -1));
+            let user_string = JSON.stringify(mesajJSON.user)
+            console.log("   user:" + user_string)
+            setUser(user_string.slice(1, -1));
+            setWebSocketReady(true);
+            setNewMessage(true);//*/
         }
         return () => ws.close();
-               
+        
         }, [ws]
     );
 
@@ -60,30 +84,39 @@ const Chat = () => {
 
 
     function handleSubmit(event: any) {
+        console.log("handleSubmit called")
         if (message != ""){
-          event.preventDefault();
-          const usr = Cookies.get("user");
-          if (ws === null) return;
-          ws.send(JSON.stringify({
-              'message': usr + " " + message,
-              'user': usr
-          }));
-          setWebSocketReady(false);
-          setMessage("");
+            event.preventDefault();
+            const usr = Cookies.get("user");
+            if (ws === null) {
+                console.log("Websocket is NULL!");
+                return;
+            }
+            else{
+                console.log("Websocket is OK!");
+            }
+            console.log("Sending message")
+            ws.send(JSON.stringify({
+                "type":"text_message",
+                'message': message,
+                'author': usr
+            }));
+            console.log("Sent message")
+            setWebSocketReady(false);
+            setMessage("");
         } 
         else {
-          event.preventDefault();
+            event.preventDefault();
         }
-        
     }
 
 
     return (
         <Container className='d-flex flex-column justify-content-center p-5'>
-          <div className='d-flex flex-column justify-content-start overflow-auto' style={{height:400, marginTop:"auto"}}>
-            {webSocketReady ? listMessages : "loading.."}
+            <div className='d-flex flex-column justify-content-start overflow-auto' style={{height:400, marginTop:"auto"}}>
+                {webSocketReady ? listMessages : "loading.."}
             <div ref={ref}/>
-          </div >
+            </div >
             {/* This sends chat */}
             <Form noValidate onSubmit={handleSubmit} className='mt-5'>
                 <Form.Group className="d-flex flex-column align-items-start" controlId="sendMessageForm">

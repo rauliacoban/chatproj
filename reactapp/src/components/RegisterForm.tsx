@@ -6,7 +6,7 @@ import { doRegister } from '../api/api-routes';
 const RegisterForm = () => {
   const REGEXEMAIL = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   const REGEXPWD = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})/;
-  const REGEXUSER = /^.{5,}$/;
+  const REGEXUSER = /^.{3,}$/;
   const [validatedUser, setValidatedUser] = useState(false);
   const [validatedEmail, setValidatedEmail] = useState(false);
   const [validatedPwd, setValidatedPwd] = useState(false);
@@ -31,16 +31,19 @@ const RegisterForm = () => {
         } else {
             setErrMsgEmail("")
         }
+
         if (user.length !== 0){
             checkUserValidation()
         } else {
             setErrMsgUser("")
         }
+
         if (pwd.length !== 0){
             checkPwdValidation()
         } else {
             setErrMsgPwd("")
         }
+
         if (confirmPwd.length !== 0){
             checkConfirmPwdValidation()
         } else {
@@ -68,7 +71,7 @@ const RegisterForm = () => {
       setErrMsgUser("Please enter an username.")
     } else if (!REGEXUSER.test(user)) {
       setValidatedUser(false)
-      setErrMsgUser("Username needs more than 5 letters.")
+      setErrMsgUser("Username needs more than 3 letters.")
     }
     else {
       setValidatedUser(true)
@@ -87,7 +90,6 @@ const RegisterForm = () => {
     else {
       setValidatedPwd(true)
     }
-    
   }
 
   const checkConfirmPwdValidation = () => {
@@ -102,20 +104,18 @@ const RegisterForm = () => {
     else {
       setValidatedConfirmPwd(true)
     }
-    
   }
 
   const handleSubmit = (event:any) => {
     if (validatedPwd && validatedUser && validatedEmail) {
       doRegister(user,pwd,email,navigate,registered);
-
     }
-      event.preventDefault();
-      checkEmailValidation();
-      checkUserValidation();
-      checkPwdValidation();
-      checkConfirmPwdValidation();
-      registered = false;
+    event.preventDefault();
+    checkEmailValidation();
+    checkUserValidation();
+    checkPwdValidation();
+    checkConfirmPwdValidation();
+    registered = false;
   };
 
     return (

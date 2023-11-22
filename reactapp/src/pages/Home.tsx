@@ -8,9 +8,10 @@ import { Container } from 'react-bootstrap';
 import MainChooseChat from '../components/MainChooseChat';
 
 const Home = () => {
-  const [auth, setAuth] = useState(false);
+  const [auth, setAuth] = useState(false); //auth is variable, setAuth is the function which updates auth
   const navigate = useNavigate();
 
+  // execute once when component mounts
   useEffect(() => {
     readCookie();
   }, []);
@@ -20,7 +21,7 @@ const Home = () => {
     const csrfToken = Cookies.get("csrfToken");
       if (csrfToken) {
         setAuth(true);
-        // getChatView(csrfToken,user);
+        // getChatView(csrfToken,user); !!! remove this line?
       } else {
         setAuth(false);
         navigate("/login");
@@ -37,4 +38,5 @@ const Home = () => {
     </>
   )
 }
+
 export default Home

@@ -1,8 +1,10 @@
 # chat/views.py
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotFound, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from .models import Group
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+import json
 
 
 @login_required
@@ -56,3 +58,16 @@ def GroupChatView(request, uuid):
     }
 
     return render(request, template_name="chat/groupchat.html", context=context)
+
+@require_http_methods(['GET'])
+def does_room_exist(request):
+    print("    AM AT does_room_exist")
+    group_name = request.GET['groupName']
+    if not Group.objects.filter(name=group_name).exists():
+        print("      AM AT does_room_exist NO")
+        return HttpResponseNotFound()
+    print("      AM AT does_room_exist YES")
+    return HttpResponse(json.dumps({'number': str(Group.objects.get(name=group_name).uuid)}))
+
+def room(request, room_name):
+    return render(request, "chat/room.html", {"room_name": room_name})

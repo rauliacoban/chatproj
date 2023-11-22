@@ -12,8 +12,8 @@ import chat.signal
 logger = logging.getLogger(__name__)
 class JoinAndLeave(AsyncWebsocketConsumer):
     async def connect(self):
-        print("JOINANDLEAVE connect")
         self.user = self.scope["user"]
+        print("JOINANDLEAVE connect to " + self.user)
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -80,32 +80,34 @@ class JoinAndLeave(AsyncWebsocketConsumer):
 
 class GroupConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        print("ARRIVED AT GroupConsumer connect")
-        self.group_uuid = str(self.scope["url_route"]["kwargs"]["uuid"])
+        self.user = self.scope["user"]
+        print("ARRIVED AT GroupConsumer connect", str(self.scope["url_route"]["kwargs"]))
+        self.group_uuid = str(self.scope["url_route"]["kwargs"]["group_id"])
         self.group = await database_sync_to_async(Group.objects.get)(uuid = self.group_uuid)
         await self.channel_layer.group_add(
                 self.group_uuid,self.channel_name)
-        self.user = self.scope["user"]
+        
         await self.accept()
 
     async def receive(self, text_data=None, bytes_data=None):
-        print("ARRIVED AT GroupConsumer receive")
+        print("ARRIVED AT GroupConsumer receive ", text_data)
         text_data = json.loads(text_data)
         type = text_data.get("type", None)
         message = text_data.get("message", None)
+        print("    MESSAGE:", str(message))
         author = text_data.get("author", None)
         if type == "text_message":
             user = await database_sync_to_async(User.objects.get)(username=author)
             message= await database_sync_to_async(Message.objects.create)(
-            author = user,
-            content = message,
-            group =self.group
+                author = user,
+                content = message,
+                group =self.group
             )
-        await self.channel_layer.group_send(self.group_uuid, {
-            "type":"text_message",
-            "message":str(message),
-            "author":author
-        })
+            await self.channel_layer.group_send(self.group_uuid, {
+                "type":"text_message",
+                "message":str(message),
+                "author":author
+            })
 
     async def text_message(self, event):
         print("ARRIVED AT GroupConsumer text_message")
@@ -115,11 +117,11 @@ class GroupConsumer(AsyncWebsocketConsumer):
         returned_data = {
             "type":"text_message",
             "message":message,
-            "group_uuid":self.group_uuid
+            "author":author
         }
         await self.send(json.dumps(
-                returned_data
-                ))
+            returned_data
+        ))
 
     async def event_message(self, event):
         print("ARRIVED AT GroupConsumer event_message")

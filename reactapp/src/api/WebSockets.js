@@ -3,15 +3,12 @@ export default function getChatSocket(
   user,
   code
 ) {
+  console.log("\n     Creating new websocket! " + window.location.host + " " + roomName)
   const chatSocket = new WebSocket(
     "ws://" +
       window.location.host +
-      "/chat/ws/chat/" +
+      "/chat/ws/group/" +
       roomName +
-      "/" +
-      user +
-      "/" +
-      code +
       "/"
   );
   return chatSocket;

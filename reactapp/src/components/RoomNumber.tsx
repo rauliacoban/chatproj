@@ -7,7 +7,7 @@ const RoomNumber = () => {
     <>
       <Container className='d-flex justify-content-center align-items-center bg-primary fw-bold bg-opacity-75 w-25 rounded shadow-lg' style={{color:'white', marginLeft:"75%", height:50}}>
 
-          {'Room code: ' +  Cookies.get("roomCode")}
+          {'Group name: ' +  Cookies.get("roomCode")}
     
       </Container>
     </>

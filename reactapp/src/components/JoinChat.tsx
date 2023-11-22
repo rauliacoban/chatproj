@@ -8,7 +8,7 @@ const JoinChat = () => {
     <Link to="/chatCheck">
         <div className='d-flex justify-content-center align-items-center bg-white text-primary bg-opacity-75 rounded shadow-lg p-3' style={{}}>
             <div className='fw-bold fs-4'>
-                Join Chat
+                Join Group
            </div>
         </div>
     </Link>

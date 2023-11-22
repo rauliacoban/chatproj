@@ -20,7 +20,7 @@ from . import authentication
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include("chat.urls")),
     path('login/', authentication.login),
     path('register/', authentication.register),
+    path('chat/', include("chat.urls")),
 ]

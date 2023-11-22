@@ -14,12 +14,13 @@ const LoginForm = () => {
   const navigate = useNavigate();
 
   let loggedIn = false;
-  useEffect(() => {
+  useEffect(() => { // called each time user, pwd or loggedIn change
     if (user.length !== 0){
       checkUserValidation()
     } else {
         setErrMsgUser("")
     }
+
     if (pwd.length !== 0){
       checkPwdValidation()
     } else {
