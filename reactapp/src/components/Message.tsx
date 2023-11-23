@@ -9,9 +9,7 @@ interface TextProps{
 }
 
 const URL_REGEX =
-	/^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gm;
-
-const IMG_REGEX = /^(.*(jpg|jpeg|png|webp|bmp).*)$/igm;
+/\b(?:https?|ftp):\/\/(?:www\.)?\S+/gi;
 
 function Text({ content }: TextProps) {
   const words = content.split(' ');
@@ -19,15 +17,11 @@ function Text({ content }: TextProps) {
     <div className='d-flex align-items-center rounded mt-3'  style={{color:'black', marginLeft: 7}}>
     <p>
       {words.map((word) => {
-        return word.match(IMG_REGEX) ? (
-          <>
-            <img style={{width:400}} src={word} />
-          </>
-        ) : (
-          word.match(URL_REGEX) ? (
+        return (  
+            word.match(URL_REGEX) ? (
             <>
-            <a target='_blank' href={word}>{word}</a>{ ' ' }
-          </>
+              <a target='_blank' href={word}>{word}</a>{ ' ' }
+            </>
         ) : (
           word + ' '
         ));
@@ -40,17 +34,16 @@ function Text({ content }: TextProps) {
 
 
 const Message = (props : any) => {
-
+  console.log(props)
   let message = props.message
-  let user = message.split(' ',1);
-  console.log(user)
-  console.log(user[0].length)
-  message=message.slice(user[0].length);
+  let user = props.user
+  let timestamp = props.timestamp.substr(0, props.timestamp.indexOf('.'))
+
   return (
     <>
     <Container className='d-flex rounded bg-white bg-opacity-75 shadow-sm mt-1 flex-column justify-content-start' style={{color:'black', height:"auto", width:"auto", margin:"auto" }}>
       <span className="mt-2" style={{fontWeight:"bold", marginLeft:6}}>
-      {user}
+      {user} {timestamp}
       </span>
       <Text content={message}/>
     </Container>

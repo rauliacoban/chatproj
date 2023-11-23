@@ -5,10 +5,12 @@ import SendMessage from './SendMessage'
 import getChatSocket from '../api/WebSockets';
 import Cookies from 'js-cookie';
 import {useReducer} from 'react';
+import { group } from 'console';
 
 
 let listMessages: any[] = []
 let messages: any[] = []
+let timestamps: any[] = []
 
 interface ChatProps {
     ws: WebSocket;
@@ -17,19 +19,14 @@ interface ChatProps {
 const Chat: React.FC<ChatProps> = ({ ws }) =>{
     console.log("                   ENTERING CHAT")
     const [message, setMessage] = useState("");
-    let my_message;
-    const [deleteme, setDeleteme] = useState("");
-    const [user, setUser] = useState("");
     const [isPaused, setPause] = useState(false);
 
     const [webSocketReady, setWebSocketReady] = useState(false);
     const [newMessage, setNewMessage] = useState(false);
     const ref:any = useRef()
 
-
     const effectRan = useRef(false);
-
-
+/*
     console.log('RE-RENDER: ' + webSocketReady);
     console.log('user: ' + user);
     console.log('isPaused: ' + isPaused);
@@ -37,7 +34,7 @@ const Chat: React.FC<ChatProps> = ({ ws }) =>{
     console.log('newMessage: ' + newMessage);
     console.log('groupId: ' + Cookies.get("groupId"));
     console.log('roomCode: ' + Cookies.get("roomCode"));
-
+*/
     useEffect(() => {
         console.log("executing")
         ref.current.scrollIntoView({behaviour:"smooth"});
@@ -47,27 +44,41 @@ const Chat: React.FC<ChatProps> = ({ ws }) =>{
         ws.onopen = (e) => {
             setWebSocketReady(false);
             console.log('connected to websocket')
+            
+            const usr = Cookies.get("user");
+            const groupid = Cookies.get("groupId");
+            console.log("Sending request for backlog " + usr + groupid)
+            ws.send(JSON.stringify({
+                "type":"backlog_request"
+            }));
+            console.log("Sent request for backlog")
         }
 
         ws.onmessage = (text_data: any) => {
+            console.log("GOT NEW MESSAEGE!!")
             console.log("   Message:" + text_data.data)
             let dataJSON = JSON.parse(text_data.data);
-            let type = dataJSON['type']
-            let message = dataJSON['message']
-            let author = dataJSON['author']
-            messages.push(message);
-            setUser(author);
+
+            if(dataJSON.type == 'text_message'){
+                let type = dataJSON['type']
+                messages.push({
+                    "message": dataJSON['message'],
+                    "author": dataJSON['author'],
+                    "timestamp": String(dataJSON['timestamp'])
+                });
+                setNewMessage(true);
+            }
+            else if(dataJSON.type == 'backlog_messages'){
+                let msgs = JSON.parse(dataJSON['items']);
+                console.log(msgs);
+                msgs.forEach((msg: { [x: string]: any; }) => {
+                    messages.push(msg);
+                });
+                setWebSocketReady(true);
+                setNewMessage(true);
+            }
+
             setWebSocketReady(true);
-            setNewMessage(true);
-            /*
-            let stringified = JSON.stringify(mesajJSON.message);
-            console.log("   message:" + stringified)
-            messages.push(stringified.slice(1, -1));
-            let user_string = JSON.stringify(mesajJSON.user)
-            console.log("   user:" + user_string)
-            setUser(user_string.slice(1, -1));
-            setWebSocketReady(true);
-            setNewMessage(true);//*/
         }
         return () => ws.close();
         
@@ -75,10 +86,13 @@ const Chat: React.FC<ChatProps> = ({ ws }) =>{
     );
 
     useEffect(() => {
-        listMessages = messages.map((item) =>
+        console.log('                       EFFECT')
+        listMessages = (messages).map((item) =>
             <div>
-                <Message user={user} message={item}/>
-            </div>)
+                <Message user={item['author']} message={item['message']} timestamp={item['timestamp']}/>
+            </div>
+        )
+        
         setNewMessage(false);
     }, [newMessage])
 

@@ -90,34 +90,70 @@ class GroupConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def receive(self, text_data=None, bytes_data=None):
-        print("ARRIVED AT GroupConsumer receive ", text_data)
+        print("    ARRIVED AT GroupConsumer receive ", text_data)
         text_data = json.loads(text_data)
-        type = text_data.get("type", None)
-        message = text_data.get("message", None)
-        print("    MESSAGE:", str(message))
+        msg_type = text_data.get("type", None)
         author = text_data.get("author", None)
-        if type == "text_message":
+        
+        if msg_type == "text_message":
+            text = text_data.get("message", None)
+            print("    text_message:", str(text))
             user = await database_sync_to_async(User.objects.get)(username=author)
             message= await database_sync_to_async(Message.objects.create)(
                 author = user,
-                content = message,
+                content = text,
                 group =self.group
             )
             await self.channel_layer.group_send(self.group_uuid, {
-                "type":"text_message",
-                "message":str(message),
-                "author":author
+                "type": "text_message",
+                "message": text,
+                "author": author,
+                "timestamp": str(message.timestamp)
             })
+
+        elif msg_type == "backlog_request":
+            groupid = text_data.get("groupid", None)
+            #user = await database_sync_to_async(User.objects.get)(author=author)
+            messages = await sync_to_async(Message.objects.filter)(group=self.group)
+            #await sync_to_async(print)(messages)
+            list_msg = await sync_to_async(list)(messages.values())
+            msgs_json = []
+            
+            for msg in list_msg:
+                #msga = await sync_to_async(Message.objects.get)(id=msg.id)
+                #print(msg)
+                author = await database_sync_to_async(User.objects.get)(id=msg['author_id'])
+                text = msg['content']
+                
+                msgs_json.append({
+                    "message": text,
+                    "author": str(author),
+                    "timestamp": str(msg['timestamp'])
+                })
+                #await sync_to_async (print)(msg.author)
+            
+            backlog_json = {
+                "type":"backlog_messages",
+                "items": json.dumps(msgs_json)
+            }
+            
+            print(backlog_json)
+            await self.send(json.dumps(
+            backlog_json
+        ))
 
     async def text_message(self, event):
         print("ARRIVED AT GroupConsumer text_message")
+        print(event)
         message = event["message"]
         author = event.get("author")
+        timestamp = event["timestamp"]
         
         returned_data = {
             "type":"text_message",
             "message":message,
-            "author":author
+            "author":author,
+            "timestamp":timestamp
         }
         await self.send(json.dumps(
             returned_data

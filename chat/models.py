@@ -53,6 +53,11 @@ class Message(models.Model):
         time = self.timestamp.time()
         return f"{self.author}:- {self.content} @{date} {time.hour}:{time.minute}"
     
+    def getTimeString(self):
+        date = self.timestamp.date()
+        time = self.timestamp.time()
+        return f"{date} {time.hour}:{time.minute}"
+    
     def save(self, *args, **kwargs):
         print("    Message saved")
         super().save(*args, kwargs)
