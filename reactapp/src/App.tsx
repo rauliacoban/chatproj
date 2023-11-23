@@ -8,6 +8,7 @@ import Login from './pages/Login';
 import Register from './pages/Register'; 
 import ChatCheck from './components/ChatCheck';
 import NewChat from './components/NewChat';
+import BrowseGroups from './components/BrowseGroups';
 //*/
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
               <Route path="/register" element={<Register />}/>
               <Route path="/chat/ws/chat/:roomId" element={<NewChat/>}/>
               <Route path="/chatCheck" element={<ChatCheck/>}/>
+              <Route path="/browseGroups" element={<BrowseGroups/>}/>
             </Routes>
       </Container>
     </>
