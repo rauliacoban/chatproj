@@ -22,6 +22,37 @@ import  { redirect } from 'react-router-dom'
 
 // };
 
+export interface Group {
+  id: string;
+  name: string;
+  // Add other properties if needed
+}
+
+export async function getGroups(csrf: any){
+  let items: Group[] = []
+  const data = await axios.get(ApiConstants.getGroupsUrl ,{
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFTOKEN': csrf
+    },
+  })
+
+  console.log('     getGroups')
+  console.log(data)
+  console.log(data.data['items'])
+
+  return JSON.stringify(data.data) 
+  
+  /*
+  .then((response:any) =>{
+    console.log(response.data);
+    items = response.data['items']
+    return items
+  }).catch((e:any) => {
+    console.log(e);
+  });*/
+};
+
 export const doRegister = (user:string,pwd:string,email:string,navigate:any,registered:boolean) => {
   try {
     axios.post(ApiConstants.registerUrl ,{
@@ -125,3 +156,14 @@ export const doesRoomExist = (csrf:any,groupName:any) =>{
     throw new Error(e.response);
   });
 };
+
+export const joinRoom = (csrf:any, groupId:any, groupName:any) =>{
+    Cookies.set("roomCode",groupName);
+    Cookies.set("groupId",groupId);
+    window.location.replace("/chat/ws/chat/" + String(groupId));
+};
+
+function async_to_sync(arg0: Promise<void>) {
+  throw new Error("Function not implemented.");
+}
+

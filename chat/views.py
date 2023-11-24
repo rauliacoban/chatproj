@@ -69,5 +69,25 @@ def does_room_exist(request):
     print("      AM AT does_room_exist YES")
     return HttpResponse(json.dumps({'number': str(Group.objects.get(name=group_name).uuid)}))
 
+@require_http_methods(['GET'])
+def get_groups(request):
+    print("    AM AT get_groups")
+    groups = Group.objects.all().values()
+    
+    groups_json = []
+    
+    for group in groups:
+        groups_json.append({
+            "uuid": str(group['uuid']),
+            "name": group['name']
+        })
+    
+    response_json = {
+        "items": json.dumps(groups_json)
+    }
+    
+    print(response_json)
+    return HttpResponse(json.dumps(response_json))
+
 def room(request, room_name):
     return render(request, "chat/room.html", {"room_name": room_name})
