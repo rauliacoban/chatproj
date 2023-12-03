@@ -4,7 +4,7 @@ import { getGroups, Group } from '../api/api-routes';
 import Cookies from 'js-cookie';
 
 const SimpleTable = () => {
-  const [tableData, setTableData] = useState([{ id: '123', name: '456' }]);
+  const [tableData, setTableData] = useState([{ id: '123', name: 'random_name' }]);
 
   async function generateRandomData() {
     try {
@@ -22,10 +22,9 @@ const SimpleTable = () => {
   }, []);
 
   return (
-    <div className="d-flex flex-column rounded bg-primary bg-opacity-50 p-3" style={{width: "150vh"}}>
+    <div className="d-flex flex-column rounded bg-primary bg-opacity-50 p-3">
       <div
-        className="d-flex justify-content-evenly align-items-center rounded mt-3"
-        style={{ overflowX: 'scroll', maxWidth: '100%', width: "150vh"}}
+        className="d-flex flex-column rounded mt-3"
       >
         <table className="table table-bordered table-striped">
           <thead>
@@ -38,7 +37,7 @@ const SimpleTable = () => {
             {tableData.map((row) => (
               <tr key={row.id}>
                 <td>{row.name}</td>
-                <RoomButton buttonText={'Join'} groupId={row.id} groupName={row.name}/>
+                <RoomButton buttonText={'Join'} groupId={row.id} groupName={row.name} />
               </tr>
             ))}
           </tbody>
