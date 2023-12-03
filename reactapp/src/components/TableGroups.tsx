@@ -30,19 +30,17 @@ const SimpleTable = () => {
         <table className="table table-bordered table-striped">
           <thead>
             <tr>
-              {tableData.map((row: any) => (
-                <th key={row.id}>{row.name}</th>
-              ))}
+              <th>Group Name</th>
+              <th>Click to join</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              {tableData.map((row: any) => (
-                <td key={row.id}>
-                  <RoomButton buttonText={'Join'} groupId={row.id} groupName={row.name}/>
-                </td>
-              ))}
-            </tr>
+            {tableData.map((row) => (
+              <tr key={row.id}>
+                <td>{row.name}</td>
+                <RoomButton buttonText={'Join'} groupId={row.id} groupName={row.name}/>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

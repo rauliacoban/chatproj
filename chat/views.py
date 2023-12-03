@@ -79,7 +79,7 @@ def get_groups(request):
     
     for group in groups:
         groups_json.append({
-            "uuid": str(group['uuid']),
+            "id": str(group['uuid']),
             "name": group['name']
         })
     

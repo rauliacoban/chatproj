@@ -161,6 +161,10 @@ export const joinRoom = (csrf:any, groupId:any, groupName:any) =>{
     Cookies.set("roomCode",groupName);
     Cookies.set("groupId",groupId);
     window.location.replace("/chat/ws/chat/" + String(groupId));
+    console.log("going to " + "/chat/ws/chat/" + String(groupId))
+    console.log(csrf)
+    console.log(groupId)
+    console.log(groupName)
 };
 
 export const createGroup = (csrf:any,groupName:any) =>{
