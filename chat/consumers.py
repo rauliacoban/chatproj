@@ -122,10 +122,43 @@ class GroupConsumer(AsyncWebsocketConsumer):
                 "items": json.dumps(msgs_json)
             }
             
-            print(backlog_json)
+            #print(backlog_json)
             await self.send(json.dumps(
             backlog_json
         ))
+            
+        elif msg_type == "userlist_request":
+            groupid = self.group_uuid
+            x = await sync_to_async(Group.objects.get)(uuid=groupid)
+            users = await sync_to_async(list)(x.members.all())
+
+            items = []
+            
+            for user in users:
+                #msga = await sync_to_async(Message.objects.get)(id=msg.id)
+                print(user)
+                items.append(str(user))
+                '''
+                author = await database_sync_to_async(User.objects.get)(id=msg['author_id'])
+                text = msg['content']
+                
+                msgs_json.append({
+                    "message": text,
+                    "author": str(author),
+                    "timestamp": str(msg['timestamp'])
+                })
+                #await sync_to_async (print)(msg.author)
+                '''
+            
+            backlog_json = {
+                "type":"userlist",
+                "items": json.dumps(items)
+            }
+            
+            print(backlog_json)
+            await self.send(json.dumps(
+                backlog_json
+            ))
 
     async def text_message(self, event):
         print("ARRIVED AT GroupConsumer text_message")
