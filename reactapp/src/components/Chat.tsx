@@ -12,7 +12,6 @@ import { group } from 'console';
 let listMessages: any[] = []
 let messages: any[] = []
 let timestamps: any[] = []
-let users: any[] = []
 
 interface ChatProps {
     ws: WebSocket;
@@ -28,6 +27,8 @@ const Chat: React.FC<ChatProps> = ({ ws }) => {
     const [userlistReady, setUserlistReady] = useState(false);
     const [newMessage, setNewMessage] = useState(false);
     const ref: any = useRef()
+
+    const [users, setUsers] = useState<any[]>([]);
 
     const effectRan = useRef(false);
 
@@ -82,10 +83,7 @@ const Chat: React.FC<ChatProps> = ({ ws }) => {
             else if (dataJSON.type == 'userlist') {
                 let usrs = JSON.parse(dataJSON['items']);
                 console.log(usrs);
-                users = []
-                usrs.forEach((usr: { [x: string]: any; }) => {
-                    users.push(usr);
-                });
+                setUsers(usrs);
                 setUserlistReady(true);
             }
 

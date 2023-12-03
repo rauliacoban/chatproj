@@ -28,14 +28,14 @@ class Group(models.Model):
     def add_user_to_group(self, user:User):
         '''A helper function to add a user to a group and create an event object'''
         self.members.add(user)
-        self.event_set.create(type="Join", user=user)
+        self.event_set.create(type="userlist", user=user)
         self.save()
 
     def remove_user_from_group(self, user:User):
         '''An helper function to remove users from group members when they \
         leave the group and create an event for the timestamp the user left the group'''
         self.members.remove(user)
-        self.event_set.create(type="Left", user=user)
+        self.event_set.create(type="userlist", user=user)
         self.save()
     
     def save(self, *args, **kwargs):
@@ -67,8 +67,7 @@ class Event(models.Model):
     A model that holds all events related to a group like when a user joins the group or leaves.
     '''
     CHOICES = [
-        ("Join", "join"),
-        ("Left", "left")
+        ("userlist", "userlist")
         ]
     type = models.CharField(choices=CHOICES, max_length=10)
     description= models.CharField(help_text="A description of the event that occurred",\

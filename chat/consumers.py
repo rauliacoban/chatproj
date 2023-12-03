@@ -72,7 +72,16 @@ class GroupConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(
                 self.group_uuid,self.channel_name)
         
+        print("A")
+        await sync_to_async(self.group.add_user_to_group)(self.user)
+        print("B")
+        
         await self.accept()
+        
+    async def disconnect(self, code):
+        await sync_to_async(self.group.remove_user_from_group)(self.user)
+        
+        return await super().disconnect(code)
 
     async def receive(self, text_data=None, bytes_data=None):
         print("    ARRIVED AT GroupConsumer receive ", text_data)
@@ -161,7 +170,7 @@ class GroupConsumer(AsyncWebsocketConsumer):
             ))
 
     async def text_message(self, event):
-        print("ARRIVED AT GroupConsumer text_message")
+        print("ARRIVED AT GroupConsumer text_message", self.user)
         print(event)
         message = event["message"]
         author = event.get("author")
@@ -177,16 +186,9 @@ class GroupConsumer(AsyncWebsocketConsumer):
             returned_data
         ))
 
-    async def event_message(self, event):
-        print("ARRIVED AT GroupConsumer event_message")
-        message = event.get("message")
-        user = event.get("user", None)
+    async def userlist(self, event):
+        print("    ARRIVED AT GroupConsumer userlist", self.user)
+        print(event)
+        await self.send(json.dumps(event))
+        print("||||||||||||||||||||||||||||||||||||||||||")
         
-        await self.send(
-            json.dumps({
-                    "type":"event_message",
-                    "message":message,
-                    "status":event.get("status",None),
-                    "user":user
-            })
-        )
