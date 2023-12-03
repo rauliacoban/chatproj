@@ -163,7 +163,24 @@ export const joinRoom = (csrf:any, groupId:any, groupName:any) =>{
     window.location.replace("/chat/ws/chat/" + String(groupId));
 };
 
-function async_to_sync(arg0: Promise<void>) {
-  throw new Error("Function not implemented.");
-}
+export const createGroup = (csrf:any,groupName:any) =>{
+  console.log(csrf)
+  console.log(groupName)
 
+  const params = ({
+    name: groupName
+  })
+
+  
+  axios.post(ApiConstants.createGroupUrl ,{
+    params,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFTOKEN': csrf
+    },
+  }).then((response:any) =>{
+
+  }).catch((e:any) => {
+    console.log(e);
+  });
+};

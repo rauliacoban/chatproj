@@ -4,6 +4,7 @@ export const ApiConstants = {
   chatRoomCode: "/chat/new_code/",
   checkRoomUrl: "/chat/find_room/",
   getGroupsUrl: "/chat/get_groups/",
+  createGroupUrl: "/chat/create_group/",
 
   httpGet: "GET",
   httpPost: "POST",

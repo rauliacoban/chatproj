@@ -17,7 +17,7 @@ const MainChooseChat = () => {
         </Container>
 
         <Container className='d-flex justify-content-evenly align-items-center rounded w-80' style={{marginTop: "7%"}}>
-          <CreateNewGroup/>
+          <CreateNewGroup buttonText="Create Group"/>
           <JoinChat buttonText="Join Group by name"/>
           <BrowseButton/>
         </Container>

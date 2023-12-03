@@ -63,21 +63,6 @@ class JoinAndLeave(AsyncWebsocketConsumer):
         self.send(json.dumps(data))
         print("JOINANDLEAVE after send", flush=True)
 
-    @database_sync_to_async
-    def create_group(self, group_name):
-        print("JOINANDLEAVE create_group", flush=True)
-        group = Group.objects.create(name=group_name)
-        print(group)
-        group.add_user_to_group(self.user)
-        data = {
-            "type": "create_group",
-            "data": str(group.uuid)
-        }
-        print(str(group.uuid))
-        print("JOINANDLEAVE create_group before send", flush=True)
-        self.send(json.dumps(data))
-        print("JOINANDLEAVE create_group after send", flush=True)
-
 class GroupConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope["user"]

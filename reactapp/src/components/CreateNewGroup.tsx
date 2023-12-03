@@ -1,21 +1,20 @@
-import React from 'react'
-import { Button, Container } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
-import { getRoomCode } from '../api/api-routes'
-import Cookies from 'js-cookie'
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-const CreateNewGroup = () => {
-  return (
-    <>
-    <Link to="#" onClick={() => getRoomCode(Cookies.get("csrfToken"))}> 
-        <div className='d-flex bg-white text-primary justify-content-center align-items-center bg-opacity-75 rounded shadow-lg p-3' style={{}}>
-           <div className='fw-bold fs-4'>
-                Create Group
-           </div>
-        </div>
-    </Link>
-    </>
-  )
+interface JoinChatProps {
+  buttonText: string;
 }
 
-export default CreateNewGroup
+const CreateNewGroup: React.FC<JoinChatProps> = ({ buttonText }) => {
+  return (
+    <Link to="/createGroup">
+      <div className='d-flex justify-content-center align-items-center bg-white text-primary bg-opacity-75 rounded shadow-lg p-3' style={{}}>
+        <div className='fw-bold fs-4'>
+          {buttonText}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+export default CreateNewGroup;

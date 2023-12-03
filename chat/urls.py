@@ -9,5 +9,6 @@ urlpatterns = [
     path('ws/some_path/', consumers.JoinAndLeave.as_asgi()),
     path('find_room/', views.does_room_exist),
     path('get_groups/', views.get_groups),
+    path('create_group/', views.create_group),
     path('<str:room_name>/', views.room, name='room'),  # IMPORTANT: this has to be the last
 ]

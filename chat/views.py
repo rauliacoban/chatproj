@@ -5,6 +5,7 @@ from .models import Group
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 import json
+from channels.db import database_sync_to_async
 
 
 @login_required
@@ -87,6 +88,21 @@ def get_groups(request):
     }
     
     print(response_json)
+    return HttpResponse(json.dumps(response_json))
+
+from django.views.decorators.csrf import csrf_exempt
+
+@database_sync_to_async
+@require_http_methods(['POST'])
+@csrf_exempt
+def create_group(request):
+    print("    create_group", flush=True)
+    print(request.POST.get('name', 'safasf'))
+    print(request.GET['name'])
+    group = Group.objects.create(name=request.name)
+    print(group)
+    response_json = {'name': request.name}
+    
     return HttpResponse(json.dumps(response_json))
 
 def room(request, room_name):

@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import ChatCheck from './components/ChatCheck';
 import NewChat from './components/NewChat';
 import BrowseGroups from './components/BrowseGroups';
+import CreateGroup from './components/CreateGroup';
 //*/
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
               <Route path="/register" element={<Register />}/>
               <Route path="/chat/ws/chat/:roomId" element={<NewChat/>}/>
               <Route path="/chatCheck" element={<ChatCheck/>}/>
+              <Route path="/createGroup" element={<CreateGroup/>}/>
               <Route path="/browseGroups" element={<BrowseGroups/>}/>
             </Routes>
       </Container>
