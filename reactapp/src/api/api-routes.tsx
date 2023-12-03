@@ -183,7 +183,7 @@ export const createGroup = (csrf:any,groupName:any) =>{
       'X-CSRFTOKEN': csrf
     },
   }).then((response:any) =>{
-
+    joinRoom(csrf, response.data.group_id, response.data.group_name)
   }).catch((e:any) => {
     console.log(e);
   });

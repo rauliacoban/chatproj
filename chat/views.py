@@ -7,7 +7,6 @@ from django.views.decorators.http import require_http_methods
 import json
 from channels.db import database_sync_to_async
 
-
 @login_required
 def HomeView(request):
     print("Arrived at Homeview")
@@ -96,14 +95,28 @@ from django.views.decorators.csrf import csrf_exempt
 @require_http_methods(['POST'])
 @csrf_exempt
 def create_group(request):
-    print("    create_group", flush=True)
-    print(request.POST.get('name', 'safasf'))
-    print(request.GET['name'])
-    group = Group.objects.create(name=request.name)
-    print(group)
-    response_json = {'name': request.name}
-    
-    return HttpResponse(json.dumps(response_json))
+    print("      AT CREATE_GROUP")
+    csrf_token = request.META.get('HTTP_X_CSRFTOKEN')
+
+    try:
+        request_data = json.loads(request.body)
+        params = request_data.get('params')
+        group_name = params.get('name')
+        
+        group = Group.objects.create(name=group_name)
+        group_id = group.uuid
+        group_name = group.name
+
+        print(request_data)
+        print(group_id)
+        
+        # Return a success response
+        response_data = {'success': True, 'group_id':str(group_id), 'group_name':str(group_name)}
+        return HttpResponse(json.dumps(response_data), content_type='application/json')
+    except json.JSONDecodeError:
+        # Return an error response for invalid JSON data
+        return HttpResponse("Invalid JSON data", status=400, content_type='text/plain')
+
 
 def room(request, room_name):
     return render(request, "chat/room.html", {"room_name": room_name})
